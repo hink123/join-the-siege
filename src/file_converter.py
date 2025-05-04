@@ -1,18 +1,16 @@
 from pypdf import PdfReader
+from werkzeug.datastructures import FileStorage
+from src.constants import IMAGE_TYPES
 import os
 import pytesseract
 import cv2
 import numpy
 
-PDF_PATH = "files/train/"
-CSV_PATH = os.path.join("files/processed_data/", "labeled_text.csv")
-IMAGE_TYPES = {"png", "jpg", "jpeg"}
-
-def extract_text_from_pdf(file):
+def extract_text_from_pdf(file: FileStorage):
     reader = PdfReader(file)
     return " ".join([page.extract_text() for page in reader.pages])
 
-def preprocess_image(file):
+def preprocess_image(file: FileStorage):
     image = cv2.imdecode(numpy.fromstring(file.read(), numpy.uint8), cv2.IMREAD_UNCHANGED)
 
     resized_image = cv2.resize(image, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
@@ -23,11 +21,11 @@ def preprocess_image(file):
 
     return threshed_image
 
-def extract_text_from_image(file):
+def extract_text_from_image(file: FileStorage):
     image = preprocess_image(file)
     return pytesseract.image_to_string(image)
 
-def extract_text(file):
+def extract_text(file: FileStorage):
     text = None
     file_type = file.filename.split(".")[-1].lower()
 

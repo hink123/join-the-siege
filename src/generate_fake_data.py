@@ -1,83 +1,20 @@
-from faker import Faker
 from datetime import datetime, timedelta
+from faker import Faker
+from constants import (
+    GENERATED_DATA_LOCATION, VEHICLE_TYPES, US_DMV_AGENCIES, 
+    US_STATES, TRANSACTION_EXAMPLES, CREDIT_TRANSACTIONS, INVOICE_EXAMPLES
+)
 import random
 import pandas as pd
-import os
 
-
-CSV_PATH = os.path.join("files/processed_data/", "generated_text_with_labels.csv")
 fake = Faker()
-
-us_states = ["Alaska", "Alabama", "Arkansas", "Arizona", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Iowa", "Idaho", "Illinois", "Indiana", "Kansas", "Kentucky", "Louisiana", "Massachusetts", "Maryland", "Maine", "Michigan", "Minnesota", "Missouri", "Mississippi", "Montana", "North Carolina", "North Dakota", "Nebraska", "New Hampshire", "New Jersey", "New Mexico", "Nevada", "New York", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Virginia", "Vermont", "Washington", "Wisconsin", "West Virginia", "Wyoming"]
-
-vehicle_types = ["Motorcycle", "Car", "Commercial Vehicle", "3 Wheeler Only"]
-dmv_agencies = {
-    "Alabama": "Department of Public Safety (DPS)",
-    "Alaska": "Division of Motor Vehicles (DMV)",
-    "Arizona": "Motor Vehicle Division (MVD)",
-    "Arkansas": "Office of Motor Vehicle (OMV)",
-    "California": "Department of Motor Vehicles (DMV)",
-    "Colorado": "Division of Motor Vehicles (DMV)",
-    "Connecticut": "Department of Motor Vehicles (DMV)",
-    "Delaware": "Division of Motor Vehicles (DMV)",
-    "Florida": "Department of Highway Safety and Motor Vehicles (DHSMV)",
-    "Georgia": "Department of Driver Services (DDS)",
-    "Hawaii": "County-level Motor Vehicle Offices",
-    "Idaho": "Division of Motor Vehicles",
-    "Illinois": "Driver Services Department (for licenses), Vehicle Services Department (for vehicle records)",
-    "Indiana": "Bureau of Motor Vehicles (BMV)",
-    "Iowa": "Department of Transportation (DOT)",
-    "Kansas": "Department of Revenue – Division of Vehicles",
-    "Kentucky": "Transportation Cabinet – Division of Driver Licensing",
-    "Louisiana": "Office of Motor Vehicles (OMV)",
-    "Maine": "Bureau of Motor Vehicles (BMV)",
-    "Maryland": "Motor Vehicle Administration (MVA)",
-    "Massachusetts": "Registry of Motor Vehicles (RMV)",
-    "Michigan": "Secretary of State (SOS)",
-    "Minnesota": "Driver and Vehicle Services (DVS)",
-    "Mississippi": "Department of Public Safety (DPS)",
-    "Missouri": "Department of Revenue – Motor Vehicle and Driver Licensing Division",
-    "Montana": "Motor Vehicle Division (MVD)",
-    "Nebraska": "Department of Motor Vehicles (DMV)",
-    "Nevada": "Department of Motor Vehicles (DMV)",
-    "New Hampshire": "Division of Motor Vehicles (DMV)",
-    "New Jersey": "Motor Vehicle Commission (MVC)",
-    "New Mexico": "Motor Vehicle Division (MVD)",
-    "New York": "Department of Motor Vehicles (DMV)",
-    "North Carolina": "Division of Motor Vehicles (DMV)",
-    "North Dakota": "Department of Transportation (DOT)",
-    "Ohio": "Bureau of Motor Vehicles (BMV)",
-    "Oklahoma": "Department of Public Safety (DPS)",
-    "Oregon": "Department of Transportation – Driver and Motor Vehicle Services (DMV)",
-    "Pennsylvania": "Department of Transportation – Driver and Vehicle Services (PennDOT)",
-    "Rhode Island": "Division of Motor Vehicles (DMV)",
-    "South Carolina": "Department of Motor Vehicles (SCDMV)",
-    "South Dakota": "Driver Licensing Program – Department of Public Safety",
-    "Tennessee": "Department of Safety and Homeland Security",
-    "Texas": "Department of Public Safety (DPS)",
-    "Utah": "Driver License Division – Department of Public Safety",
-    "Vermont": "Department of Motor Vehicles (DMV)",
-    "Virginia": "Department of Motor Vehicles (DMV)",
-    "Washington": "Department of Licensing (DOL)",
-    "West Virginia": "Division of Motor Vehicles (DMV)",
-    "Wisconsin": "Division of Motor Vehicles (DMV)",
-    "Wyoming": "Department of Transportation – Driver Services Program"
-}
-
-descriptions = [
-    "Direct Deposit", "ACH Payment", "Check Deposit",
-    "POS Purchase", "Debit Card Purchase", "Online Transfer",
-    "Loan Repayment"
-]
-
-invoice_items = ["Logo Design", "Business Card Design", "Website Mockup", "Social Media Banners", "Brand Guidelines PDF"]
 
 def generate_fake_uk_license():
     name = fake.name()
     first, last = name.split()[0], name.split()[-1]
     dob = fake.date_of_birth().strftime("%d.%m.%Y")
     license_id = f"{random.randint(10, 99)}-{random.randint(1000, 9999)}"
-    vehicle = random.choice(vehicle_types)
+    vehicle = random.choice(VEHICLE_TYPES)
     address = fake.address().replace("\n", ", ")
 
     lines = [
@@ -94,13 +31,13 @@ def generate_fake_uk_license():
     return "\n".join(lines)
 
 def generate_fake_us_license():
-    state = random.choice(us_states)
+    state = random.choice(US_STATES)
     name = fake.name()
     dob = fake.date_of_birth().strftime("%m/%d/%Y")
     license_num = fake.bothify(text="??######")
     address = fake.address().replace("\n", ", ")
-    vehicle = random.choice(vehicle_types)
-    agency = dmv_agencies[state]
+    vehicle = random.choice(VEHICLE_TYPES)
+    agency = US_DMV_AGENCIES[state]
 
     lines = [
         f"{state.upper()} DRIVER LICENSE",
@@ -115,9 +52,9 @@ def generate_fake_us_license():
 
 
 def generate_fake_transaction(date):
-    description = random.choice(descriptions)
+    description = random.choice(TRANSACTION_EXAMPLES)
     amount = round(random.uniform(10.00, 700.00), 2)
-    is_credit = description in ["Direct Deposit", "Check Deposit"]
+    is_credit = description in CREDIT_TRANSACTIONS
 
     return {
         "date": date.strftime("%d/%m/%Y"),
@@ -168,7 +105,7 @@ def generate_invoice_text():
     sender_phone = fake.phone_number()
     bank_account = fake.bban()
 
-    selected_items = random.sample(invoice_items, k=random.randint(2, 4))
+    selected_items = random.sample(INVOICE_EXAMPLES, k=random.randint(2, 4))
     
     lines = [
         f"{sender_company} INVOICE",
@@ -222,4 +159,4 @@ def generate_fake_date():
         invoice_text = generate_invoice_text()
         fake_data.append({"text": invoice_text, "label": "invoice"})
 
-    pd.DataFrame(fake_data).to_csv(CSV_PATH, index=False)
+    pd.DataFrame(fake_data).to_csv(GENERATED_DATA_LOCATION, index=False)

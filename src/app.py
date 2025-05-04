@@ -1,9 +1,8 @@
 from flask import Flask, request, jsonify
+from src.constants import ALLOWED_EXTENSIONS
 
 from src.classifier import classify_file
 app = Flask(__name__)
-
-ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg'}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
