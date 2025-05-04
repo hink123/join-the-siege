@@ -223,5 +223,3 @@ def generate_fake_date():
         fake_data.append({"text": invoice_text, "label": "invoice"})
 
     pd.DataFrame(fake_data).to_csv(CSV_PATH, index=False)
-
-generate_fake_date()
