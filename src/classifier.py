@@ -1,17 +1,25 @@
 from werkzeug.datastructures import FileStorage
+from transformers import BertForSequenceClassification, BertTokenizer
+from src.file_converter import extract_text
+import torch
 
 def classify_file(file: FileStorage):
-    filename = file.filename.lower()
-    # file_bytes = file.read()
 
-    if "drivers_license" in filename:
-        return "drivers_licence"
+    labels = ["bank_statement", "drivers_licence", "invoice"]
+    label2id = {label: i for i, label in enumerate(labels)}
+    id2label = {i: label for label, i in label2id.items()}
 
-    if "bank_statement" in filename:
-        return "bank_statement"
+    model = BertForSequenceClassification.from_pretrained("classifier_model")
+    tokenizer = BertTokenizer.from_pretrained("classifier_model/")
+    model.eval()
 
-    if "invoice" in filename:
-        return "invoice"
+    file_text = extract_text(file)
 
-    return "unknown file"
+    inputs = tokenizer(file_text, return_tensors="pt", truncation=True, padding=True, max_length=512)
+    
+    with torch.no_grad():
+        outputs = model(**inputs)
+        predicted_class_id = torch.argmax(outputs.logits, dim=1).item()
+    
+    return id2label[predicted_class_id]
 
