@@ -17,7 +17,7 @@ def generate_fake_uk_license():
     vehicle = random.choice(VEHICLE_TYPES)
     address = fake.address().replace("\n", ", ")
 
-    lines = [
+    text = [
         "DRIVING LICENCE",
         f"1. {last.upper()}",
         f"2. {first.upper()}",
@@ -28,7 +28,7 @@ def generate_fake_uk_license():
         f"7. {address}",
         f"8. {vehicle.upper()}"
     ]
-    return "\n".join(lines)
+    return "\n".join(text)
 
 def generate_fake_us_license():
     state = random.choice(US_STATES)
@@ -39,7 +39,7 @@ def generate_fake_us_license():
     vehicle = random.choice(VEHICLE_TYPES)
     agency = US_DMV_AGENCIES[state]
 
-    lines = [
+    text = [
         f"{state.upper()} DRIVER LICENSE",
         f"Name: {name}",
         f"DOB: {dob}",
@@ -48,7 +48,7 @@ def generate_fake_us_license():
         f"Issued by: {agency}",
         f"Address: {address}"
     ]
-    return "\n".join(lines)
+    return "\n".join(text)
 
 
 def generate_fake_transaction(date):
@@ -63,21 +63,29 @@ def generate_fake_transaction(date):
         "credit": f"{amount:.2f}" if is_credit else ""
     }
 
-def generate_fake_bank_statement(num_transactions=20):
-    start_year = random.randint(1900, 2025)
-    start_month = random.randint(1, 12)
-    start_date = datetime.strptime(f"{start_year}-{start_month}-01", "%Y-%m-%d")
+def generate_fake_transaction_text(start_date):
     transactions = []
+    text = []
 
-    for _ in range(num_transactions):
+    for _ in range(20):
         random_days = random.randint(0, 27)
         trans_date = start_date + timedelta(days=random_days)
         transactions.append(generate_fake_transaction(trans_date))
 
+    for transaction in transactions:
+        text.append(f"{transaction['date']}  {transaction['description']} {transaction['debit']} {transaction['credit']}")
+    
+    return text
+
+def generate_fake_bank_statement():
+    start_year = random.randint(1900, 2025)
+    start_month = random.randint(1, 12)
+    start_date = datetime.strptime(f"{start_year}-{start_month}-01", "%Y-%m-%d")
     name = fake.name()
     account_number = f"XXXX-XXXX-XXXX-{random.randint(1000, 9999)}"
+    transactions_text = generate_fake_transaction_text(start_date)
 
-    lines = [
+    text = [
         f"Bank {fake.company()}",
         f"Customer Support: {fake.phone_number()}",
         f"{fake.url()}",
@@ -85,13 +93,27 @@ def generate_fake_bank_statement(num_transactions=20):
         f"Account Number: {account_number}",
         f"Statement Period: {start_year}-{start_month}",
         "",
-        "Date       Description              Debit ($)   Credit ($)"
+        "Date Description Debit ($) Credit ($)",
     ]
 
-    for transaction in transactions:
-        lines.append(f"{transaction['date']}  {transaction['description']:<24} {transaction['debit']:<11} {transaction['credit']}")
+    text.extend(transactions_text)
 
-    return "\n".join(lines)
+    return "\n".join(text)
+
+def generate_invoice_items():
+    selected_items = random.sample(INVOICE_EXAMPLES, k=random.randint(2, 4))
+    subtotal = 0
+    text = []
+    for item in selected_items:
+        quantity = random.randint(1, 100)
+        unit_price = random.randint(1, 1000000)
+
+        total = quantity * unit_price
+
+        subtotal += total
+        text.append(f"{item} {quantity} ${unit_price:.2f} ${total:.2f}")
+
+    return (subtotal, text)
 
 def generate_invoice_text():
     invoice_no = random.randint(1000, 9999)
@@ -104,10 +126,13 @@ def generate_invoice_text():
     sender_email = fake.company_email()
     sender_phone = fake.phone_number()
     bank_account = fake.bban()
-
-    selected_items = random.sample(INVOICE_EXAMPLES, k=random.randint(2, 4))
+    tax_decimal = random.randint(1, 15)/100
     
-    lines = [
+    subtotal, invoice_items_text = generate_invoice_items()
+    tax = subtotal * tax_decimal
+    total = subtotal + tax
+    
+    text = [
         f"{sender_company} INVOICE",
         f"Issue Date: {issue_date}",
         f"Due Date: {due_date}",
@@ -116,23 +141,11 @@ def generate_invoice_text():
         "DESCRIPTION QTY UNIT PRICE TOTAL",
     ]
 
-    subtotal = 0
-    for item in selected_items:
-        quantity = random.randint(1, 100)
-        unit_price = random.randint(1, 1000000)
+    text += invoice_items_text
 
-        total = quantity * unit_price
-
-        subtotal += total
-        lines.append(f"{item:<25} {quantity:<5} ${unit_price:<11.2f} ${total:.2f}")
-    
-    tax = subtotal * 0.05
-    total = subtotal + tax
-
-    # Totals
-    lines += [
+    text += [
         f"Subtotal: ${subtotal:.2f}",
-        f"Tax (5%): ${tax:.2f}",
+        f"Tax ({tax_decimal*100}): ${tax:.2f}",
         f"TOTAL: ${total:.2f}",
         "Payment Info:",
         f"Bank Account: {bank_account}",
@@ -141,10 +154,10 @@ def generate_invoice_text():
         "Please make payment within 30 days."
     ]
 
-    return "\n".join(lines)
+    return "\n".join(text)
 
 
-def generate_fake_date():
+def generate_fake_data():
     fake_data = []
     for _ in range(100):
         licensce_text_uk = generate_fake_uk_license()
