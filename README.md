@@ -40,10 +40,10 @@ This setup would allow the system to scale efficiently while keeping infrastruct
 1. Clone the repository:
     ```shell
     git clone <repository_url>
-    cd heron_classifier
+    cd join-the-siege
     ```
 2. Install Tesseract
-    - This needed to process images
+    - This is needed to process images
     ```shell
     brew install tesseract
     ```
@@ -53,8 +53,7 @@ This setup would allow the system to scale efficiently while keeping infrastruct
     source venv/bin/activate
     pip install -r requirements.txt
     ```
-4. (Optional) Generate Synthetic Data and Train the Classifier Model
-    - This has already been done for you
+4. Generate Synthetic Data and Train the Classifier Model
     ```shell
     python src/setup.py
     ```

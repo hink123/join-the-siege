@@ -5,3 +5,5 @@ venv
 __pycache__
 *.pyc
 trainer_output
+classifier_model/*
+files/processed_data/*
