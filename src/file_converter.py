@@ -11,7 +11,7 @@ def extract_text_from_pdf(file: FileStorage):
     return " ".join([page.extract_text() for page in reader.pages])
 
 def preprocess_image(file: FileStorage):
-    image = cv2.imdecode(numpy.fromstring(file.read(), numpy.uint8), cv2.IMREAD_UNCHANGED)
+    image = cv2.imdecode(numpy.frombuffer(file.read(), numpy.uint8), cv2.IMREAD_UNCHANGED)
 
     resized_image = cv2.resize(image, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
     grayed_image = cv2.cvtColor(resized_image, cv2.COLOR_BGR2GRAY)
