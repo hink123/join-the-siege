@@ -1,5 +1,4 @@
 import io
-import pytest
 from src.file_converter import extract_text
 from werkzeug.datastructures import FileStorage
 

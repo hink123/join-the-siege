@@ -1,7 +1,6 @@
 from pypdf import PdfReader
 from werkzeug.datastructures import FileStorage
 from src.constants import IMAGE_TYPES
-import os
 import pytesseract
 import cv2
 import numpy
