@@ -1,5 +1,5 @@
-ALLOWED_EXTENSIONS = {"pdf", "png", "png", "jpg", "jpeg"}
-IMAGE_TYPES = {"png", "jpg", "jpeg"}
+ALLOWED_EXTENSIONS = {"pdf", "png", "jpg"}
+IMAGE_TYPES = {"png", "jpg"}
 
 INDUSTRIES = ["bank_statement", "drivers_licence", "invoice"]
 INDUSTRIES_ENCODED = {industry: i for i, industry in enumerate(INDUSTRIES)}
